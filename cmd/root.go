@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/tyler-m/palette/palette"
 )
 
 var RootCommand = &cobra.Command{
@@ -12,11 +14,12 @@ var RootCommand = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		kFlag, err := cmd.PersistentFlags().GetInt("k")
-		_ = kFlag
 
 		if err != nil {
 			os.Exit(1)
 		}
+
+		fmt.Println(palette.Create(args, kFlag))
 	},
 }
 
