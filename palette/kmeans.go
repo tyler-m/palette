@@ -82,8 +82,25 @@ func KMeans(colors []Color, k int) []Cluster {
 
 	for {
 		assignColors(colors, clusters)
+
+		previousClusterMeans := make([]color.RGBA, k)
+		for i, cluster := range clusters {
+			previousClusterMeans[i] = cluster.meanColor
+		}
+
 		updateClusterMeans(clusters)
-		break
+
+		unchanged := true
+		for i, cluster := range clusters {
+			if cluster.meanColor != previousClusterMeans[i] {
+				unchanged = false
+				break
+			}
+		}
+
+		if unchanged {
+			break
+		}
 	}
 
 	return clusters
