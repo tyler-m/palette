@@ -60,17 +60,22 @@ func assignColors(colors []Color, clusters []Cluster) {
 func updateClusterMeans(clusters []Cluster) {
 	for i, cluster := range clusters {
 		var rTotal, gTotal, bTotal int
+		var pixelTotal int // number of pixels in the image that are represented by the colors in this cluster
 
 		for _, color := range cluster.colors {
-			rTotal += int(color.color.R)
-			gTotal += int(color.color.G)
-			bTotal += int(color.color.B)
+			colorOccurences := len(color.pixels) // number of pixels in the image represented by this color
+			pixelTotal += colorOccurences
+
+			// the more prevalent a color is in an image, the more "pull" it has on the clusters
+			rTotal += int(color.color.R) * colorOccurences
+			gTotal += int(color.color.G) * colorOccurences
+			bTotal += int(color.color.B) * colorOccurences
 		}
 
 		meanColor := color.RGBA{
-			R: uint8(rTotal / len(cluster.colors)),
-			G: uint8(gTotal / len(cluster.colors)),
-			B: uint8(bTotal / len(cluster.colors)),
+			R: uint8(rTotal / pixelTotal),
+			G: uint8(gTotal / pixelTotal),
+			B: uint8(bTotal / pixelTotal),
 			A: cluster.meanColor.A}
 
 		clusters[i].meanColor = meanColor
