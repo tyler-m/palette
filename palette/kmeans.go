@@ -58,7 +58,7 @@ func assignColors(colors []Color, clusters []Cluster) {
 }
 
 func updateClusterMeans(clusters []Cluster) {
-	for _, cluster := range clusters {
+	for i, cluster := range clusters {
 		var rTotal, gTotal, bTotal int
 
 		for _, color := range cluster.colors {
@@ -73,7 +73,7 @@ func updateClusterMeans(clusters []Cluster) {
 			B: uint8(bTotal / len(cluster.colors)),
 			A: cluster.meanColor.A}
 
-		cluster.meanColor = meanColor
+		clusters[i].meanColor = meanColor
 	}
 }
 
