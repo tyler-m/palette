@@ -57,11 +57,32 @@ func assignColors(colors []Color, clusters []Cluster) {
 	}
 }
 
+func updateClusterMeans(clusters []Cluster) {
+	for _, cluster := range clusters {
+		var rTotal, gTotal, bTotal int
+
+		for _, color := range cluster.colors {
+			rTotal += int(color.color.R)
+			gTotal += int(color.color.G)
+			bTotal += int(color.color.B)
+		}
+
+		meanColor := color.RGBA{
+			R: uint8(rTotal / len(cluster.colors)),
+			G: uint8(gTotal / len(cluster.colors)),
+			B: uint8(bTotal / len(cluster.colors)),
+			A: cluster.meanColor.A}
+
+		cluster.meanColor = meanColor
+	}
+}
+
 func KMeans(colors []Color, k int) []Cluster {
 	clusters := initClusters(colors, k)
 
 	for {
 		assignColors(colors, clusters)
+		updateClusterMeans(clusters)
 		break
 	}
 
