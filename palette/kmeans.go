@@ -4,7 +4,10 @@ import (
 	"image/color"
 	"math"
 	"math/rand"
+	"time"
 )
+
+var rng *rand.Rand
 
 type Cluster struct {
 	meanColor color.RGBA
@@ -20,7 +23,6 @@ func distance(p color.RGBA, q color.RGBA) float64 {
 }
 
 func initClusters(colors []Color, k int) []Cluster {
-	rng := rand.New(rand.NewSource(8472683430)) // temp for debugging
 	clusters := make([]Cluster, k)
 
 	for i, cluster := range clusters {
@@ -82,7 +84,13 @@ func updateClusterMeans(clusters []Cluster) {
 	}
 }
 
-func KMeans(colors []Color, k int) []Cluster {
+func KMeans(colors []Color, k int, seed int64) []Cluster {
+	if seed == -1 {
+		rng = rand.New(rand.NewSource(time.Now().UnixNano()))
+	} else {
+		rng = rand.New(rand.NewSource(seed))
+	}
+
 	clusters := initClusters(colors, k)
 
 	for {

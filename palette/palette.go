@@ -58,13 +58,13 @@ func getColors(image image.Image) []Color {
 	return colors
 }
 
-func Create(imagePaths []string, k int) string {
+func Create(imagePaths []string, k int, seed int64) string {
 	var output strings.Builder
 
 	for _, imagePath := range imagePaths {
 		image := loadImage(imagePath)
 		colors := getColors(image)
-		clusters := KMeans(colors, k)
+		clusters := KMeans(colors, k, seed)
 
 		output.WriteString(imagePath)
 		output.WriteString("\n")

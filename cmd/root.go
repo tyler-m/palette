@@ -14,15 +14,20 @@ var RootCommand = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		kFlag, err := cmd.PersistentFlags().GetInt("k")
-
 		if err != nil {
 			os.Exit(1)
 		}
 
-		fmt.Println(palette.Create(args, kFlag))
+		seedFlag, err := cmd.PersistentFlags().GetInt64("seed")
+		if err != nil {
+			os.Exit(1)
+		}
+
+		fmt.Println(palette.Create(args, kFlag, seedFlag))
 	},
 }
 
 func init() {
 	RootCommand.PersistentFlags().IntP("k", "k", 5, "the size of the palette")
+	RootCommand.PersistentFlags().Int64P("seed", "s", -1, "the seed used for initializing cluster means. -1 means no seed is used")
 }
