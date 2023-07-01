@@ -58,6 +58,19 @@ func getColors(image image.Image) []Color {
 	return colors
 }
 
+func Format(imagePath string, clusters []Cluster) string {
+	var output strings.Builder
+
+	output.WriteString(imagePath)
+	output.WriteString("\n")
+	for _, cluster := range clusters {
+		output.WriteString(fmt.Sprintf("{%d, %d, %d}", cluster.meanColor.R, cluster.meanColor.G, cluster.meanColor.B))
+		output.WriteString("\n")
+	}
+
+	return output.String()
+}
+
 func Create(imagePaths []string, k int, seed int64) string {
 	var output strings.Builder
 
@@ -66,12 +79,7 @@ func Create(imagePaths []string, k int, seed int64) string {
 		colors := getColors(image)
 		clusters := KMeans(colors, k, seed)
 
-		output.WriteString(imagePath)
-		output.WriteString("\n")
-		for _, cluster := range clusters {
-			output.WriteString(fmt.Sprintf("{%d, %d, %d}", cluster.meanColor.R, cluster.meanColor.G, cluster.meanColor.B))
-			output.WriteString("\n")
-		}
+		output.WriteString(Format(imagePath, clusters))
 	}
 
 	return output.String()
