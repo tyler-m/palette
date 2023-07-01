@@ -1,10 +1,12 @@
 package palette
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	_ "image/jpeg"
 	"os"
+	"strings"
 )
 
 type Pixel struct {
@@ -57,12 +59,20 @@ func getColors(image image.Image) []Color {
 }
 
 func Create(imagePaths []string, k int) string {
+	var output strings.Builder
+
 	for _, imagePath := range imagePaths {
 		image := loadImage(imagePath)
 		colors := getColors(image)
 		clusters := KMeans(colors, k)
-		_ = clusters
+
+		output.WriteString(imagePath)
+		output.WriteString("\n")
+		for _, cluster := range clusters {
+			output.WriteString(fmt.Sprintf("{%d, %d, %d}", cluster.meanColor.R, cluster.meanColor.G, cluster.meanColor.B))
+			output.WriteString("\n")
+		}
 	}
 
-	return "Well met!"
+	return output.String()
 }
