@@ -12,8 +12,9 @@ type Pixel struct {
 }
 
 type Color struct {
-	color  color.RGBA
-	pixels []Pixel
+	color        color.RGBA
+	pixels       []Pixel
+	clusterIndex int
 }
 
 func loadImage(imagePath string) image.Image {
