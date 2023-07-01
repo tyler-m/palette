@@ -34,18 +34,22 @@ func loadImage(imagePath string) image.Image {
 func getColors(image image.Image) []Color {
 	width, height := image.Bounds().Max.X, image.Bounds().Max.Y
 	colorToPixelsMap := make(map[color.RGBA][]Pixel)
+	colorToIndex := make(map[color.RGBA]int)
 
 	for x := 0; x < width; x++ {
 		for y := 0; y < height; y++ {
 			pixel := Pixel{x: x, y: y}
 			color := color.RGBAModel.Convert(image.At(x, y)).(color.RGBA)
+			if len(colorToPixelsMap[color]) == 0 {
+				colorToIndex[color] = len(colorToIndex)
+			}
 			colorToPixelsMap[color] = append(colorToPixelsMap[color], pixel)
 		}
 	}
 
-	colors := make([]Color, 0)
+	colors := make([]Color, len(colorToPixelsMap))
 	for color, pixels := range colorToPixelsMap {
-		colors = append(colors, Color{color: color, pixels: pixels})
+		colors[colorToIndex[color]] = Color{color: color, pixels: pixels}
 	}
 
 	return colors
@@ -54,7 +58,9 @@ func getColors(image image.Image) []Color {
 func Create(imagePaths []string, k int) string {
 	for _, imagePath := range imagePaths {
 		image := loadImage(imagePath)
-		getColors(image)
+		colors := getColors(image)
+		clusters := KMeans(colors, k)
+		_ = clusters
 	}
 
 	return "Well met!"
