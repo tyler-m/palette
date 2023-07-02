@@ -34,15 +34,22 @@ func loadImage(imagePath string) image.Image {
 	return image
 }
 
-func getColors(image image.Image) []Color {
-	width, height := image.Bounds().Max.X, image.Bounds().Max.Y
+func getColors(sourceImage image.Image, dsFactor float64) []Color {
+	sourceWidth := float64(sourceImage.Bounds().Max.X)
+	sourceHeight := float64(sourceImage.Bounds().Max.Y)
+	width := int(dsFactor * sourceWidth)
+	height := int(dsFactor * sourceHeight)
+
 	colorToPixelsMap := make(map[color.RGBA][]Pixel)
 	colorToIndex := make(map[color.RGBA]int)
 
 	for x := 0; x < width; x++ {
 		for y := 0; y < height; y++ {
 			pixel := Pixel{x: x, y: y}
-			color := color.RGBAModel.Convert(image.At(x, y)).(color.RGBA)
+			color := color.RGBAModel.Convert(sourceImage.At(
+				int(float64(x)/dsFactor),
+				int(float64(y)/dsFactor))).(color.RGBA)
+
 			if len(colorToPixelsMap[color]) == 0 {
 				colorToIndex[color] = len(colorToIndex)
 			}
@@ -71,12 +78,12 @@ func Format(imagePath string, clusters []Cluster) string {
 	return output.String()
 }
 
-func Create(imagePaths []string, k int, seed int64) string {
+func Create(imagePaths []string, k int, seed int64, dsFactor float64) string {
 	var output strings.Builder
 
 	for _, imagePath := range imagePaths {
 		image := loadImage(imagePath)
-		colors := getColors(image)
+		colors := getColors(image, dsFactor)
 		clusters := KMeans(colors, k, seed)
 
 		output.WriteString(Format(imagePath, clusters))
