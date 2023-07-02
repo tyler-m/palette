@@ -68,10 +68,12 @@ func getColors(sourceImage image.Image, dsFactor float64) []Color {
 func Format(imagePath string, clusters []Cluster) string {
 	var output strings.Builder
 
+	output.WriteString("\"")
 	output.WriteString(imagePath)
+	output.WriteString("\"")
 	output.WriteString("\n")
 	for _, cluster := range clusters {
-		output.WriteString(fmt.Sprintf("{%d, %d, %d}", int(cluster.R), int(cluster.G), int(cluster.B)))
+		output.WriteString(fmt.Sprintf("%d,%d,%d", int(cluster.R), int(cluster.G), int(cluster.B)))
 		output.WriteString("\n")
 	}
 
