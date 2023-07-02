@@ -64,7 +64,7 @@ func Format(imagePath string, clusters []Cluster) string {
 	output.WriteString(imagePath)
 	output.WriteString("\n")
 	for _, cluster := range clusters {
-		output.WriteString(fmt.Sprintf("{%d, %d, %d}", cluster.meanColor.R, cluster.meanColor.G, cluster.meanColor.B))
+		output.WriteString(fmt.Sprintf("{%d, %d, %d}", int(cluster.R), int(cluster.G), int(cluster.B)))
 		output.WriteString("\n")
 	}
 

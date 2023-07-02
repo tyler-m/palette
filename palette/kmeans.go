@@ -1,7 +1,6 @@
 package palette
 
 import (
-	"image/color"
 	"math"
 	"math/rand"
 	"time"
@@ -10,25 +9,33 @@ import (
 var rng *rand.Rand
 
 type Cluster struct {
-	meanColor color.RGBA
-	colors    []Color
+	R, G, B, A float64
+	colors     []Color
 }
 
-func distance(p color.RGBA, q color.RGBA) float64 {
-	rDifference := int(q.R) - int(p.R)
-	bDifference := int(q.B) - int(p.B)
-	gDifference := int(q.G) - int(p.G)
-	sumOfSquares := rDifference*rDifference + bDifference*bDifference + gDifference*gDifference
-	return math.Sqrt(float64(sumOfSquares))
+func distance(p Color, q Cluster) float64 {
+	r := float64(p.color.R) - q.R
+	g := float64(p.color.G) - q.G
+	b := float64(p.color.B) - q.B
+	return math.Sqrt(r*r + g*g + b*b)
+}
+
+func clusterDistance(p Cluster, q Cluster) float64 {
+	r := p.R - q.R
+	g := p.G - q.G
+	b := p.B - q.B
+	return math.Sqrt(r*r + g*g + b*b)
 }
 
 func initClusters(colors []Color, k int) []Cluster {
 	clusters := make([]Cluster, k)
 
-	for i, cluster := range clusters {
+	for i := range clusters {
 		colorIndex := int(float64(len(colors)) * rng.Float64())
-		cluster.meanColor = colors[colorIndex].color
-		clusters[i] = cluster
+		clusters[i].R = float64(colors[colorIndex].color.R)
+		clusters[i].G = float64(colors[colorIndex].color.G)
+		clusters[i].B = float64(colors[colorIndex].color.B)
+		clusters[i].A = float64(colors[colorIndex].color.A)
 	}
 
 	return clusters
@@ -42,11 +49,11 @@ func assignColors(colors []Color, clusters []Cluster) {
 	for _, color := range colors {
 		indexOfNearestCluster := color.clusterIndex
 
-		distanceToPreviousCluster := distance(color.color, clusters[indexOfNearestCluster].meanColor)
+		distanceToPreviousCluster := distance(color, clusters[indexOfNearestCluster])
 		minimumClusterDistance := distanceToPreviousCluster
 
 		for i, cluster := range clusters {
-			distance := distance(color.color, cluster.meanColor)
+			distance := distance(color, cluster)
 
 			if distance < minimumClusterDistance {
 				minimumClusterDistance = distance
@@ -74,13 +81,9 @@ func updateClusterMeans(clusters []Cluster) {
 			bTotal += int(color.color.B) * colorOccurences
 		}
 
-		meanColor := color.RGBA{
-			R: uint8(rTotal / pixelTotal),
-			G: uint8(gTotal / pixelTotal),
-			B: uint8(bTotal / pixelTotal),
-			A: cluster.meanColor.A}
-
-		clusters[i].meanColor = meanColor
+		clusters[i].R = float64(rTotal) / float64(pixelTotal)
+		clusters[i].G = float64(gTotal) / float64(pixelTotal)
+		clusters[i].B = float64(bTotal) / float64(pixelTotal)
 	}
 }
 
@@ -92,26 +95,25 @@ func KMeans(colors []Color, k int, seed int64) []Cluster {
 	}
 
 	clusters := initClusters(colors, k)
+	previousClusters := make([]Cluster, k)
 
 	for {
 		assignColors(colors, clusters)
 
-		previousClusterMeans := make([]color.RGBA, k)
 		for i, cluster := range clusters {
-			previousClusterMeans[i] = cluster.meanColor
+			previousClusters[i].R = cluster.R
+			previousClusters[i].G = cluster.G
+			previousClusters[i].B = cluster.B
 		}
 
 		updateClusterMeans(clusters)
 
-		unchanged := true
+		totalDistance := float64(0)
 		for i, cluster := range clusters {
-			if cluster.meanColor != previousClusterMeans[i] {
-				unchanged = false
-				break
-			}
+			totalDistance += clusterDistance(previousClusters[i], cluster)
 		}
 
-		if unchanged {
+		if totalDistance/float64(k) < 0.5 {
 			break
 		}
 	}
