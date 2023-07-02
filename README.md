@@ -16,8 +16,6 @@ Creates a palette based on the colors of a given image.
 
 navigate to root directory and run `go build`
 
-an ex
-
 # testing
 
 navigate to root directory and run `go test -v ./...`
